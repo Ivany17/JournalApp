@@ -9,6 +9,7 @@ List<Note> notes = new List<Note> { };
 app.MapPost("/api/notes", (Note note) =>
 {
     note.Id = notes.Count + 1;
+    note.CreatedAt = DateTime.Now;
     notes.Add(note);
     return note;
 });
@@ -29,13 +30,13 @@ app.MapDelete("/api/notes/{id}", (int id) =>
     }
 });
 
-app.MapPut("/api/notes/{id}", (int id, Note noteFromTheUser) =>
+app.MapPut("/api/notes/{id}", (int id, Note notesFromTheUser) =>
 {
     var idToEdit = notes.FirstOrDefault(n => n.Id == id);
     if (idToEdit != null)
     {
-        idToEdit.Title = noteFromTheUser.Title;
-        idToEdit.Content = noteFromTheUser.Content;
+        idToEdit.Title = notesFromTheUser.Title;
+        idToEdit.Content = notesFromTheUser.Content;
         return Results.Ok(idToEdit);
     }
     else
@@ -51,4 +52,5 @@ public class Note
     public int Id { get; set; }
     public string Title { get; set; } = "";
     public string Content { get; set; } = "";
+    public DateTime CreatedAt { get; set; }
 }
