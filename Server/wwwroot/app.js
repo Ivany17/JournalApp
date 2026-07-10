@@ -3,6 +3,9 @@ const contentInput = document.getElementById('contentInput');
 const addNoteBtn = document.getElementById('addNoteBtn');
 const noteResult = document.getElementById('noteResult');
 
+const searchInput = document.getElementById('searchInput');
+const searchBtn = document.getElementById('searchBtn');
+
 addNoteBtn.addEventListener('click', async () => {
     const postResult = await fetch("/api/notes", {
         method: 'POST',
@@ -22,29 +25,37 @@ async function renderNotes() {
     const data = await getResult.json();
     noteResult.innerHTML = "";
     data.forEach(d => {
+        const noteCard = document.createElement('div');
+        noteCard.className = 'note-card';
+
         const titleContainer = document.createElement('div');
+        titleContainer.className = 'note-title';
         titleContainer.textContent = d.title;
-        noteResult.appendChild(titleContainer);
+        noteCard.appendChild(titleContainer);
 
         const contentContainer = document.createElement('div');
+        contentContainer.className = 'note-content';
         contentContainer.textContent = d.content;
-        noteResult.appendChild(contentContainer);
+        noteCard.appendChild(contentContainer);
 
         const dateTime = document.createElement('div');
+        dateTime.className = 'note-date';
         dateTime.textContent = new Date(d.createdAt).toLocaleString();
-        noteResult.appendChild(dateTime);
+        noteCard.appendChild(dateTime);
 
         const deleteButton = document.createElement('button');
+        deleteButton.className = 'delete-btn';
         deleteButton.textContent = "Delete";
-        noteResult.appendChild(deleteButton);
+        noteCard.appendChild(deleteButton);
         deleteButton.addEventListener('click', async () => {
             const deleteResult = await fetch(`/api/notes/${d.id}`, {method: 'DELETE'});
             renderNotes();
         });
         
         const editButton = document.createElement('button');
+        editButton.className = 'edit-btn';
         editButton.textContent = "Edit";
-        noteResult.appendChild(editButton);
+        noteCard.appendChild(editButton);
         editButton.addEventListener('click', async() => {
             const askEditTitle = window.prompt("Edit your Title");
             const askEditContent = window.prompt("Edit your Content");
@@ -57,10 +68,20 @@ async function renderNotes() {
                         content: askEditContent,
                     }),
                 });
-            renderNotes();
+                renderNotes();
             }
         });
+
+        noteResult.appendChild(noteCard);
     });
 }
+
+searchBtn.addEventListener('click', async() => {
+    const searchText = searchInput.value;
+    const getResult = await fetch(`/api/notes?search=${encodeURIComponent(searchText)}`);
+    const data = await getResult.json();
+    console.log(data);
+    searchInput.value = "";
+});
 
 renderNotes();

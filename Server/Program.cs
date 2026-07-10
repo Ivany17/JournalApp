@@ -14,7 +14,19 @@ app.MapPost("/api/notes", (Note note) =>
     return note;
 });
 
-app.MapGet("/api/notes", () => notes);
+app.MapGet("/api/notes", (string search = null!) =>
+{
+    if (string.IsNullOrEmpty(search))
+    {
+        var orderedNotes = notes.OrderByDescending(n => n.CreatedAt).ToList();
+        return orderedNotes;
+    }
+    else
+    {
+        var searchNote = notes.Where(n => n.Title.Contains(search, StringComparison.OrdinalIgnoreCase));
+        return searchNote;
+    }
+});
 
 app.MapDelete("/api/notes/{id}", (int id) =>
 {

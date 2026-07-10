@@ -1,0 +1,126 @@
+body {
+    background-color: #f0f8ff; 
+    font-family: "Comic Sans MS", "Arial", sans-serif; 
+    color: #333333;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: #ff6b6b; 
+    text-shadow: 1px 1px 0px #fff, 2px 2px 0px #333; 
+}
+
+#journalContainter {
+    max-width: 800px; 
+    margin: 0 auto; 
+    background-color: #ffffff;
+    padding: 20px;
+    border: 3px solid #4a90e2; 
+    border-radius: 12px; 
+    box-shadow: 5px 5px 0px #4a90e2; 
+}
+
+.create-box {
+    margin-bottom: 25px;
+    border-bottom: 2px dashed #e0e0e0;
+    padding-bottom: 15px;
+}
+
+.search-box {
+    margin-bottom: 20px;
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+input[type="text"] {
+    width: 100%; 
+    padding: 10px;
+    margin-bottom: 12px;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px;
+    display: block; 
+    box-sizing: border-box;
+}
+
+input[type="text"]:focus {
+    border-color: #ff6b6b; 
+    outline: none;
+}
+
+button {
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 5px;
+}
+
+button:active {
+    transform: translateY(2px); 
+}
+
+#addNoteBtn {
+    background-color: #2ecc71; 
+    border-bottom: 3px solid #27ae60; 
+}
+#addNoteBtn:active { border-bottom: 1px solid #27ae60; }
+
+#searchBtn {
+    background-color: #f1c40f; 
+    border-bottom: 3px solid #f39c12;
+    color: #333;
+}
+#searchBtn:active { border-bottom: 1px solid #f39c12; }
+
+.note-card {
+    background-color: #fff9db; 
+    border: 2px dashed #f5b041; 
+    padding: 12px;
+    margin-top: 15px;
+    border-radius: 8px;
+}
+
+.note-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 5px;
+}
+
+.note-content {
+    font-size: 15px;
+    margin-bottom: 8px;
+    color: #555;
+}
+
+.note-date {
+    font-size: 11px;
+    color: #7f8c8d;
+    font-style: italic;
+    margin-bottom: 10px;
+}
+
+.note-card button {
+    margin-right: 5px;
+    padding: 5px 10px;
+    font-size: 12px;
+}
+
+.note-card .delete-btn {
+    background-color: #e74c3c;
+    border-bottom: 3px solid #c0392b;
+}
+.note-card .delete-btn:active { border-bottom: 1px solid #c0392b; }
+
+.note-card .edit-btn {
+    background-color: #3498db;
+    border-bottom: 3px solid #2980b9;
+}
+.note-card .edit-btn:active { border-bottom: 1px solid #2980b9; }

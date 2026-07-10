@@ -2,15 +2,26 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Sandbox DELETE</title>
+    <title>MyJournal</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Sandbox DELETE</h1>
-    <div id="sanboxContainter">
-        <input type="text" id="titleInput" placeholder="Title of the note">
-        <input type="text" id="contentInput" placeholder="Content of the note">
-        <button id="addNoteBtn">Add the Note</button>
+    <h1>My Journal</h1>
+    <div id="journalContainter">
+
+        <div class="create-box">
+            <input type="text" id="titleInput" placeholder="Title of the note">
+            <input type="text" id="contentInput" placeholder="Content of the note">
+            <button id="addNoteBtn">Add the Note</button>
+        </div>
+
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Find your Title...">
+            <button id="searchBtn">Search</button>
+        </div>
+        
         <div id="noteResult"></div>
+
     </div>
 
     <script src="app.js"></script>
