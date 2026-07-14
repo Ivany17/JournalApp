@@ -1,39 +1,62 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
+
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
+    options.UseSqlite("Data Source=journal.db");
+});
+builder.Services.AddHttpContextAccessor();
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    dbContext.Database.EnsureCreated();
+}
 
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-List<Note> notes = new List<Note> { };
-
-app.MapPost("/api/notes", (Note note) =>
+app.MapPost("/api/notes", async (Note note) =>
 {
-    note.Id = notes.Count + 1;
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
     note.CreatedAt = DateTime.Now;
-    notes.Add(note);
+    dbContext.Notes.Add(note);
+    await dbContext.SaveChangesAsync();
     return note;
 });
 
-app.MapGet("/api/notes", (string search = null!) =>
+app.MapGet("/api/notes/search", async (string search = null!) =>
 {
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     if (string.IsNullOrEmpty(search))
     {
-        var orderedNotes = notes.OrderByDescending(n => n.CreatedAt).ToList();
+        var orderedNotes = await dbContext.Notes.OrderByDescending(n => n.CreatedAt).ToListAsync();
         return orderedNotes;
     }
     else
     {
-        var searchNote = notes.Where(n => n.Title.Contains(search, StringComparison.OrdinalIgnoreCase));
+        var searchNote = await dbContext.Notes
+            .Where(n => EF.Functions.Like(n.Title, $"%{search}%"))
+            .ToListAsync();
         return searchNote;
     }
 });
 
-app.MapDelete("/api/notes/{id}", (int id) =>
+app.MapDelete("/api/notes/{id}", async (int id) =>
 {
-    var idToDelete = notes.FirstOrDefault(n => n.Id == id);
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+    var idToDelete = dbContext.Notes.FirstOrDefault(n => n.Id == id);
     if (idToDelete != null)
     {
-        notes.Remove(idToDelete);
+        dbContext.Notes.Remove(idToDelete);
+        await dbContext.SaveChangesAsync();
         return true;
     }
     else
@@ -42,13 +65,17 @@ app.MapDelete("/api/notes/{id}", (int id) =>
     }
 });
 
-app.MapPut("/api/notes/{id}", (int id, Note notesFromTheUser) =>
+app.MapPut("/api/notes/{id}", async (int id, Note notesFromTheUser) =>
 {
-    var idToEdit = notes.FirstOrDefault(n => n.Id == id);
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+    var idToEdit = dbContext.Notes.FirstOrDefault(n => n.Id == id);
     if (idToEdit != null)
     {
         idToEdit.Title = notesFromTheUser.Title;
         idToEdit.Content = notesFromTheUser.Content;
+        await dbContext.SaveChangesAsync();
         return Results.Ok(idToEdit);
     }
     else

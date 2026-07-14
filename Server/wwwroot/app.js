@@ -15,14 +15,16 @@ addNoteBtn.addEventListener('click', async () => {
             content: contentInput.value,
         }),
     });
-    renderNotes();
-    titleInput.value = "";
-    contentInput.value = "";
+    if (postResult.ok) {
+        renderNotes();
+        titleInput.value = "";
+        contentInput.value = "";
+    } else {
+        console.error("Failed to add note");
+    }
 });
 
-async function renderNotes() {
-    const getResult = await fetch("/api/notes");
-    const data = await getResult.json();
+async function displayNotes(data) {
     noteResult.innerHTML = "";
     data.forEach(d => {
         const noteCard = document.createElement('div');
@@ -76,11 +78,17 @@ async function renderNotes() {
     });
 }
 
+async function renderNotes() {
+    const getResult = await fetch("/api/notes/search");
+    const data = await getResult.json();
+    displayNotes(data);
+}
+
 searchBtn.addEventListener('click', async() => {
     const searchText = searchInput.value;
-    const getResult = await fetch(`/api/notes?search=${encodeURIComponent(searchText)}`);
+    const getResult = await fetch(`/api/notes/search?search=${encodeURIComponent(searchText)}`);
     const data = await getResult.json();
-    console.log(data);
+    displayNotes(data);
     searchInput.value = "";
 });
 
