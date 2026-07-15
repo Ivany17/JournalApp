@@ -7,20 +7,25 @@ const searchInput = document.getElementById('searchInput');
 const searchBtn = document.getElementById('searchBtn');
 
 addNoteBtn.addEventListener('click', async () => {
-    const postResult = await fetch("/api/notes", {
-        method: 'POST',
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            title: titleInput.value,
-            content: contentInput.value,
-        }),
-    });
-    if (postResult.ok) {
-        renderNotes();
-        titleInput.value = "";
-        contentInput.value = "";
+    if(!titleInput.value.trim() || !contentInput.value.trim()){
+        alert("Title and Content cannot be empty!");
     } else {
-        console.error("Failed to add note");
+        const postResult = await fetch("/api/notes", {
+            method: 'POST',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                title: titleInput.value,
+                content: contentInput.value,
+            }),
+        });
+        if (postResult.ok) {
+            renderNotes();
+            titleInput.value = "";
+            contentInput.value = "";
+            showMessage("Note added successfully!");
+        } else {
+            showMessage("Failed to add note");
+        }
     }
 });
 
@@ -50,8 +55,16 @@ async function displayNotes(data) {
         deleteButton.textContent = "Delete";
         noteCard.appendChild(deleteButton);
         deleteButton.addEventListener('click', async () => {
-            const deleteResult = await fetch(`/api/notes/${d.id}`, {method: 'DELETE'});
-            renderNotes();
+            const deleteAnswer = confirm("Are you sure you want to delete this note?");
+            if(deleteAnswer){
+                const deleteResult = await fetch(`/api/notes/${d.id}`, {method: 'DELETE'});
+                if (deleteResult.ok) {
+                renderNotes();
+                    showMessage("Note deleted successfully!");
+                } else {
+                    showMessage("Failed to delete note");
+                }
+            }
         });
         
         const editButton = document.createElement('button');
@@ -59,18 +72,26 @@ async function displayNotes(data) {
         editButton.textContent = "Edit";
         noteCard.appendChild(editButton);
         editButton.addEventListener('click', async() => {
-            const askEditTitle = window.prompt("Edit your Title");
-            const askEditContent = window.prompt("Edit your Content");
-            if(askEditTitle != null || askEditContent != null){
-                const putResult = await fetch(`/api/notes/${d.id}`, {
-                    method: 'PUT',
-                    headers: { "Content-Type" : "application/json" },
-                    body: JSON.stringify({
-                        title: askEditTitle,
-                        content: askEditContent,
-                    }),
-                });
-                renderNotes();
+            const editAnswer = confirm("Are you sure you want to edit this note?");
+            if(editAnswer){
+                const askEditTitle = window.prompt("Edit your Title");
+                const askEditContent = window.prompt("Edit your Content");
+                if(askEditTitle != null || askEditContent != null){
+                    const putResult = await fetch(`/api/notes/${d.id}`, {
+                        method: 'PUT',
+                        headers: { "Content-Type" : "application/json" },
+                        body: JSON.stringify({
+                            title: askEditTitle,
+                            content: askEditContent,
+                        }),
+                    });
+                    if (putResult.ok) {
+                        renderNotes();
+                        showMessage("Note updated successfully!");
+                    } else {
+                        showMessage("Failed to updated note");
+                    }
+                }
             }
         });
 
@@ -91,5 +112,19 @@ searchBtn.addEventListener('click', async() => {
     displayNotes(data);
     searchInput.value = "";
 });
+
+function showMessage(text, type) {
+    const message = document.getElementById('message');
+    message.textContent = text;
+    if(type === 'error'){
+        message.style.color = "#ff6b6b";
+    } else{
+        message.style.color = "#2ecc71";
+    }
+    message.style.display = "block";
+    setTimeout(() => {
+        message.style.display = "none";
+    }, 3000);
+}
 
 renderNotes();

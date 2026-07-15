@@ -35,7 +35,8 @@ h1 {
     border: 1px solid #e0e0e0;
 }
 
-input[type="text"] {
+textarea, input[type="text"] {
+    font-family: "Comic Sans MS", "Arial", sans-serif;
     width: 100%; 
     padding: 10px;
     margin-bottom: 12px;
@@ -46,8 +47,12 @@ input[type="text"] {
     box-sizing: border-box;
 }
 
-input[type="text"]:focus {
-    border-color: #ff6b6b; 
+textarea {
+    height: 100px;
+}
+
+textarea:focus, input[type="text"]:focus {
+    border-color: #6b75ff; 
     outline: none;
 }
 
@@ -55,6 +60,7 @@ button {
     color: white;
     border: none;
     padding: 8px 15px;
+    font-family: "Comic Sans MS", "Arial", sans-serif;
     font-size: 14px;
     font-weight: bold;
     border-radius: 5px;
@@ -124,3 +130,14 @@ button:active {
     border-bottom: 3px solid #2980b9;
 }
 .note-card .edit-btn:active { border-bottom: 1px solid #2980b9; }
+
+#message{
+    color: #2ecc71;
+    margin-top: 10px;
+    font-size: 18px;
+    display: none;
+    position: fixed; 
+    top: 20px; 
+    left: 50%; 
+    transform: translateX(-50%);
+}
