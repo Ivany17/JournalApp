@@ -29,22 +29,22 @@ app.MapPost("/api/notes", async (Note note) =>
     return note;
 });
 
-app.MapGet("/api/notes/search", async (string search = null!) =>
+app.MapGet("/api/notes/search", async (string search = null!, string date = null!) =>
 {
     using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    if (string.IsNullOrEmpty(search))
+    var query = dbContext.Notes.AsQueryable();
+    if (!string.IsNullOrEmpty(search))
     {
-        var orderedNotes = await dbContext.Notes.OrderByDescending(n => n.CreatedAt).ToListAsync();
-        return orderedNotes;
+        query = query.Where(q => q.Title.Contains(search));
     }
-    else
+    if (!string.IsNullOrEmpty(date))
     {
-        var searchNote = await dbContext.Notes
-            .Where(n => EF.Functions.Like(n.Title, $"%{search}%"))
-            .ToListAsync();
-        return searchNote;
+        var parsedDate = DateTime.Parse(date);
+        query = query.Where(q => q.CreatedAt.Date == parsedDate.Date);
     }
+    var result = await query.OrderByDescending(q => q.CreatedAt).ToListAsync();
+    return result;
 });
 
 app.MapDelete("/api/notes/{id}", async (int id) =>

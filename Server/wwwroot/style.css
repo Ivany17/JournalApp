@@ -46,6 +46,15 @@ textarea, input[type="text"] {
     display: block; 
     box-sizing: border-box;
 }
+input[type="date"]{
+    font-family: "Comic Sans MS", "Arial", sans-serif;
+    width: 100%; 
+    padding: 8px;
+    margin-bottom: 12px;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px;
+}
 
 textarea {
     height: 100px;
@@ -78,12 +87,29 @@ button:active {
 }
 #addNoteBtn:active { border-bottom: 1px solid #27ae60; }
 
+#searchTheTitle, #filterByDate{
+    display: flex;
+    gap: 10px;
+}
+
 #searchBtn {
+    height: 50px;
+    width: 120px;
+    padding: 8px 15px;
     background-color: #f1c40f; 
     border-bottom: 3px solid #f39c12;
     color: #333;
 }
 #searchBtn:active { border-bottom: 1px solid #f39c12; }
+
+#filterBtn {
+    height: 50px;
+    width: 120px;
+    padding: 8px 15px;
+    background-color: #2980b9;
+    border-bottom: 3px solid #1259f3;
+    color: #fffdfd;
+}
 
 .note-card {
     background-color: #fff9db; 

@@ -6,6 +6,9 @@ const noteResult = document.getElementById('noteResult');
 const searchInput = document.getElementById('searchInput');
 const searchBtn = document.getElementById('searchBtn');
 
+const filterDate = document.getElementById('filterDate');
+const filterBtn = document.getElementById('filterBtn');
+
 addNoteBtn.addEventListener('click', async () => {
     if(!titleInput.value.trim() || !contentInput.value.trim()){
         alert("Title and Content cannot be empty!");
@@ -111,6 +114,14 @@ searchBtn.addEventListener('click', async() => {
     const data = await getResult.json();
     displayNotes(data);
     searchInput.value = "";
+});
+filterBtn.addEventListener('click', async() => {
+    const searchDate = filterDate.value;
+    console.log("Search date:", searchDate);
+    const getResult = await fetch(`/api/notes/search?date=${encodeURIComponent(searchDate)}`);
+    const data = await getResult.json();
+    displayNotes(data);
+    filterDate.value = "";
 });
 
 function showMessage(text, type) {
