@@ -9,6 +9,8 @@ const searchBtn = document.getElementById('searchBtn');
 const filterDate = document.getElementById('filterDate');
 const filterBtn = document.getElementById('filterBtn');
 
+const totalCount = document.getElementById('totalCount');
+
 addNoteBtn.addEventListener('click', async () => {
     if(!titleInput.value.trim() || !contentInput.value.trim()){
         alert("Title and Content cannot be empty!");
@@ -103,25 +105,20 @@ async function displayNotes(data) {
 }
 
 async function renderNotes() {
-    const getResult = await fetch("/api/notes/search");
-    const data = await getResult.json();
-    displayNotes(data);
+    loadNotes(currentSearch, currentDate, 1);
 }
 
+let currentSearch = '';
 searchBtn.addEventListener('click', async() => {
     const searchText = searchInput.value;
-    const getResult = await fetch(`/api/notes/search?search=${encodeURIComponent(searchText)}`);
-    const data = await getResult.json();
-    displayNotes(data);
-    searchInput.value = "";
+    currentSearch = searchText;
+    loadNotes(searchText, '', 1);
 });
+let currentDate = '';
 filterBtn.addEventListener('click', async() => {
     const searchDate = filterDate.value;
-    console.log("Search date:", searchDate);
-    const getResult = await fetch(`/api/notes/search?date=${encodeURIComponent(searchDate)}`);
-    const data = await getResult.json();
-    displayNotes(data);
-    filterDate.value = "";
+    currentDate = searchDate;
+    loadNotes('', searchDate, 1);
 });
 
 function showMessage(text, type) {
@@ -137,5 +134,35 @@ function showMessage(text, type) {
         message.style.display = "none";
     }, 3000);
 }
+
+let totalNotes = 0;
+async function loadNotes(search, date, page) {
+    currentPage = page;
+    let url = `/api/notes/search?page=${currentPage}&pageSize=${pageSize}`;
+    if (search) url += `&search=${encodeURIComponent(search)}`;
+    if (date) url += `&date=${encodeURIComponent(date)}`;
+    const getResult = await fetch(url);
+    const data = await getResult.json();
+    displayNotes(data.result);
+    totalCount.textContent = `Total Notes: ${data.totalCount}`;
+    totalNotes = data.totalCount;
+    prevBtn.disabled = (currentPage === 1);
+    nextBtn.disabled = (currentPage * pageSize >= totalNotes);
+}
+
+let currentPage = 1;
+const pageSize = 5;
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+prevBtn.addEventListener('click', () => {
+    if (currentPage > 1) {
+        loadNotes(currentSearch, currentDate, currentPage - 1);
+    }
+});
+nextBtn.addEventListener('click', () => {
+    if (currentPage * pageSize < totalNotes) {
+        loadNotes(currentSearch, currentDate, currentPage + 1);
+    }
+});
 
 renderNotes();

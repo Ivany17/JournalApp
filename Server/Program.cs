@@ -29,7 +29,7 @@ app.MapPost("/api/notes", async (Note note) =>
     return note;
 });
 
-app.MapGet("/api/notes/search", async (string search = null!, string date = null!) =>
+app.MapGet("/api/notes/search", async (string search = null!, string date = null!, int page = 1, int pageSize = 5) =>
 {
     using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -43,8 +43,13 @@ app.MapGet("/api/notes/search", async (string search = null!, string date = null
         var parsedDate = DateTime.Parse(date);
         query = query.Where(q => q.CreatedAt.Date == parsedDate.Date);
     }
-    var result = await query.OrderByDescending(q => q.CreatedAt).ToListAsync();
-    return result;
+    var result = await query.OrderByDescending(q => q.CreatedAt).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+    var totalCount = await query.CountAsync();
+    return new
+    {
+        TotalCount = totalCount,
+        Result = result,
+    };
 });
 
 app.MapDelete("/api/notes/{id}", async (int id) =>
