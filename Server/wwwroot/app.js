@@ -1,4 +1,5 @@
 const titleInput = document.getElementById('titleInput');
+const imageInput = document.getElementById('imageInput');
 const contentInput = document.getElementById('contentInput');
 const addNoteBtn = document.getElementById('addNoteBtn');
 const noteResult = document.getElementById('noteResult');
@@ -15,19 +16,20 @@ addNoteBtn.addEventListener('click', async () => {
     if(!titleInput.value.trim() || !contentInput.value.trim()){
         alert("Title and Content cannot be empty!");
     } else {
+        const formData = new FormData();
+        formData.append('title', titleInput.value);
+        formData.append('image', imageInput.files[0]);
+        formData.append('content', contentInput.value);
         const postResult = await fetch("/api/notes", {
             method: 'POST',
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                title: titleInput.value,
-                content: contentInput.value,
-            }),
+            body: formData,
         });
         if (postResult.ok) {
             renderNotes();
             titleInput.value = "";
             contentInput.value = "";
             showMessage("Note added successfully!");
+            imageInput.value = "";
         } else {
             showMessage("Failed to add note");
         }
@@ -44,6 +46,14 @@ async function displayNotes(data) {
         titleContainer.className = 'note-title';
         titleContainer.textContent = d.title;
         noteCard.appendChild(titleContainer);
+
+        if (d.imagePath) {
+            const img = document.createElement('img');
+            img.src = d.imagePath;
+            img.alt = "Note image";
+            img.style.maxWidth = "100%";
+            noteCard.appendChild(img);
+        }
 
         const contentContainer = document.createElement('div');
         contentContainer.className = 'note-content';

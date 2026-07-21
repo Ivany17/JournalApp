@@ -3,12 +3,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 
 var builder = WebApplication.CreateBuilder(args);
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlite("Data Source=journal.db");
 });
 builder.Services.AddHttpContextAccessor();
+
 var app = builder.Build();
+
 
 using (var scope = app.Services.CreateScope())
 {
@@ -19,14 +22,31 @@ using (var scope = app.Services.CreateScope())
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-app.MapPost("/api/notes", async (Note note) =>
+app.MapPost("/api/notes", async ([FromForm] string title, [FromForm] string content, IFormFile? image = null) =>
 {
     try
     {
+        var note = new Note
+        {
+            Title = title,
+            Content = content,
+            CreatedAt = DateTime.Now
+        };
+
+        if (image != null)
+        {
+            var newImage = $"{Guid.NewGuid()}{Path.GetExtension(image.FileName)}";
+            var filePath = Path.Combine("wwwroot/images", newImage);
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await image.CopyToAsync(stream);
+            }
+            note.ImagePath = $"/images/{newImage}";
+        }
+
         using var scope = app.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-        note.CreatedAt = DateTime.Now;
         dbContext.Notes.Add(note);
         await dbContext.SaveChangesAsync();
         return Results.Ok(note);
@@ -35,7 +55,7 @@ app.MapPost("/api/notes", async (Note note) =>
     {
         return Results.BadRequest("Error message");
     }
-});
+}).DisableAntiforgery();
 
 app.MapGet("/api/notes/search", async (string search = null!, string date = null!, int page = 1, int pageSize = 5) =>
 {
@@ -77,6 +97,15 @@ app.MapDelete("/api/notes/{id}", async (int id) =>
         var idToDelete = dbContext.Notes.FirstOrDefault(n => n.Id == id);
         if (idToDelete != null)
         {
+            var imagePath = idToDelete.ImagePath;
+            if (File.Exists(imagePath) && imagePath != null)
+            {
+                var fullPath = Path.Combine("wwwroot", imagePath.TrimStart('/'));
+                if (File.Exists(fullPath))
+                {
+                    File.Delete(fullPath);
+                }
+            }
             dbContext.Notes.Remove(idToDelete);
             await dbContext.SaveChangesAsync();
             return Results.Ok(true);
@@ -126,4 +155,5 @@ public class Note
     public string Title { get; set; } = "";
     public string Content { get; set; } = "";
     public DateTime CreatedAt { get; set; }
+    public string ImagePath { get; set; } = "";
 }
